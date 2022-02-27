@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
 # It takes in phi, rangex, rangey, deltaT
 # phi: the map (final positions of test particles) for a single start time, with its values arranged on the grid.
-# It is assumed to be indexed as [x coord of test particle, y coord of test particle, map component]
+# It is assumed to be indexed as [initial x coord of test particle, initial y coord of test particle, map component]
 # Where map component = 0 for x, and = 1 for y.
 # rangex: the ordered set of x values of points on the grid
 # rangey: the ordered set of y values of points on the grid
@@ -172,10 +172,11 @@ def compute_FTLES(phi,rangex,rangey,deltaT):
     
     return ftle
     
-    
+# Composits a set of Phis in the order that they're given to it
 # Takes in: philist, rangex, rangey, order
-# The philist is a 1d arrays of phis, constructed like np.asarray([phi0, phi1, ...]), sorted according to the order they will be composited
-# If they are positive-time phis, they should be sorted [phi(t=0),phi(t=1),...]. If they are negative time then the order must be reversed.
+# The philist is a numpy array, indexed like [initial x coord of test particle, initial y coord of test particle, time, map component]
+# If they are positive-time phis, they are already sorted in the right order. If they are negative time then the order must be reversed,
+# for example by doing Phi[:,:,::-1,:]
 # rangex: the ordered set of x values of points on the grid
 # rangey: the prdered set of y values of points on the grid
 # interporder: what order interpolation to use. Default is cubic, you can also use linear.
