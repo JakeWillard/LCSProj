@@ -44,7 +44,22 @@ if __name__ == '__main__':
 
     # save Phi to file
     
-
+    # A bit of fake code to explain how to use my functions:
+    
+    # Let's say that we decided that a finite time integration of 7 timesteps is a good amount
+    # Let one timestep be dT.
+    # The forward integration code would look like this:
+    
+    Phi_7timesteps = np.zeros((Nx, Ny, Nt, 2))
+    ftles = np.zeros((Nx, Ny, Nt))
+    for i in range(Nt-7):
+        Phi_7timesteps[:,:,i,:] = composite_phis(Phi[:,:,i:(i+7+1),:],x_coords,y_coords)
+    for i in range(Nt-7):
+        ftles[:,:,i] = compute_FTLES(Phi_7timesteps[:,:,i,:],x_coords,y_coords,dT)
+        
+    
+    
+    
 
 
 
@@ -156,3 +171,62 @@ def compute_FTLES(phi,rangex,rangey,deltaT):
     # plt.quiver(xgrid[::decx,::decy],ygrid[::decx,::decy],(phix-xgrid)[::decx,::decy],(phiy-ygrid)[::decx,::decy],color='red')
     
     return ftle
+    
+    
+# Takes in: philist, rangex, rangey, order
+# The philist is a 1d arrays of phis, constructed like np.asarray([phi0, phi1, ...]), sorted according to the order they will be composited
+# If they are positive-time phis, they should be sorted [phi(t=0),phi(t=1),...]. If they are negative time then the order must be reversed.
+# rangex: the ordered set of x values of points on the grid
+# rangey: the prdered set of y values of points on the grid
+# interporder: what order interpolation to use. Default is cubic, you can also use linear.
+
+# Returns a new phi that is the composition of the given phis
+def composite_phis(philist,rangex,rangey,interporder='cubic'):
+    
+    # Separating out components and changing indexes so we can iterate over time
+    phixlist = np.moveaxis(philist[:,:,:,0],-1,0)
+    phiylist = np.moveaxis(philist[:,:,:,1],-1,0)
+    
+    # Defining grid
+    [ygrid,xgrid] = np.meshgrid(rangey,rangex)
+
+    # The first phi is the identity map, aka the grid
+    phixc = xgrid
+    phiyc = ygrid
+    
+    # For plotting purposes, uncomment if you want to plot
+    # Decimation factor for drawing field lines and arrows
+    # decx = int(xgrid.shape[0]/20)
+    # decy = int(xgrid.shape[1]/20)
+    
+    # Iteratively compositing the phis
+    for i in range(phixlist.shape[0]):
+        # Interpolating the ith phi
+        if interporder=='cubic':
+            phixinterp = RectBivariateSpline(rangex,rangey,phixlist[i],kx=3,ky=3)
+            phiyinterp = RectBivariateSpline(rangex,rangey,phiylist[i],kx=3,ky=3)
+        elif interporder=='linear':
+            phixinterp = RectBivariateSpline(rangex,rangey,phixlist[i],kx=1,ky=1)
+            phiyinterp = RectBivariateSpline(rangex,rangey,phiylist[i],kx=1,ky=1)
+        else:
+            raise Exception('only linear and cubic interpolation supported')
+            
+        # Compositing the ith phi with the previous composition of phi_0, ..., phi_{i-1}
+        phixcnew = phixinterp(phixc,phiyc,grid=False)
+        phiycnew = phiyinterp(phixc,phiyc,grid=False)
+
+        # Optional: plotting. This traces out flow lines. It will significantly slow things down!
+        # Comment or uncomment as desired
+        # for j in range(len(xgrid[::decx,::decy].reshape(-1))):
+        #     plt.plot([phixc[::decx,::decy].reshape(-1)[j],phixcnew[::decx,::decy].reshape(-1)[j]],[phiyc[::decx,::decy].reshape(-1)[j],phiycnew[::decx,::decy].reshape(-1)[j]],color='red')
+        # if i == (phixlist.shape[0]-1):
+        #     plt.quiver(xgrid[::decx,::decy],ygrid[::decx,::decy],(phix-xgrid)[::decx,::decy],(phiy-ygrid)[::decx,::decy])
+
+        # Updating the composited phi to include the contribution of phi_i
+        phixc = phixcnew
+        phiyc = phiycnew
+    # Creating the new phi
+    
+    phic = np.moveaxis(np.asarray([phixc,phiyc]),0,-1)
+    
+    return phic
