@@ -93,6 +93,9 @@ if __name__ == '__main__':
 # rangey: the ordered set of y values of points on the grid
 # deltaT: the integration time
 
+# Returns a masked array of the FTLEs, arranged properly along the grid.
+# Invalid points (so far, just sources or sinks and the boundary) are masked
+
 def compute_FTLES(phi,rangex,rangey,deltaT):
     # Breaking up phi into components
     
