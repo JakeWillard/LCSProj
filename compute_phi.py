@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # save Phi to file
     
-    # A bit of fake code to explain how to use my functions:
+    # A bit of fake code to explain how to use the functions:
     
     # Let's say that we decided that a finite time integration of 7 timesteps is a good amount
     # Let one timestep be dT.
@@ -56,11 +56,16 @@ if __name__ == '__main__':
         Phi_7timesteps[:,:,i,:] = composite_phis(Phi[:,:,i:(i+7+1),:],x_coords,y_coords)
     for i in range(Nt-7):
         ftles[:,:,i] = compute_FTLES(Phi_7timesteps[:,:,i,:],x_coords,y_coords,dT)
-        
+    # We could combine the loops if we wanted ofc
     
+    # The backwards integration code would look like
     
-    
-
+    Phi_reverse_7timesteps = np.zeros((Nx, Ny, Nt, 2))
+    ftles = np.zeros((Nx, Ny, Nt))
+    for i in range(Nt-7):
+        Phi_reverse_7timesteps[:,:,i+7,:] = composite_phis(Phi_reverse[:,:,i:(i+7+1),:][:,:,::-1,:],x_coords,y_coords)
+    for i in range(Nt-7):
+        ftles[:,:,i] = compute_FTLES(Phi_reverse_7timesteps[:,:,i,:],x_coords,y_coords,-dT)
 
 
 
@@ -229,5 +234,28 @@ def composite_phis(philist,rangex,rangey,interporder='cubic'):
     # Creating the new phi
     
     phic = np.moveaxis(np.asarray([phixc,phiyc]),0,-1)
+    
+    # Checking to see what fraction of particles advected past the simulation boundary
+    # This can be commented out with no issue
+    ################################################################################################################################
+    ################################################################################################################################
+    boundaryx = [rangex[1],rangex[-2]]
+    boundaryy = [rangey[1],rangey[-2]]
+    phixtrim = phic[1:-1,1:-1,0]
+    phiytrim = phic[1:-1,1:-1,1]
+    nparticles = (len(rangex)-1)*(len(rangey)-1)
+    
+    oobx = ((phixtrim<boundaryx[0]) | (phixtrim>boundaryx[1]))
+    ooby = ((phiytrim<boundaryy[0]) | (phiytrim>boundaryy[1]))
+    oob = (oobx | ooby)
+
+    nout = np.count_nonzero(oob)
+    fracout = nout/nparticles
+    
+    print('fraction of particles lost:')
+    print(fracout)
+    ################################################################################################################################
+    ################################################################################################################################
+
     
     return phic
