@@ -1,0 +1,8 @@
+##### Note: All of the Bellow Commands should be run from your LOCAL Computer
+
+## Transfer files from NCAR supercomputer to local computer
+scp mlmoses@data-access.ucar.edu:/glade/u/home/mlmoses/sample.xml ~/LCSProj/
+
+## Transfer files from local computer to NCAR supercomputer
+scp ~/LCS_Project/<file> mlmoses@data-access.ucar.edu:/glade/u/home/mlmoses/
+

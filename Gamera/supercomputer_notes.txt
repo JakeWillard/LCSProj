@@ -1,0 +1,25 @@
+##############################################
+########## Job Scripts #########
+### To Run Job Script: 
+    * qsub <filename_prefix>.qsub
+
+### Job Script <filename_prefix>.qsub: 
+    * Most important thing to fill in is the account number 
+    * Q name has two option: 
+        * regular : normal 
+        * premium : if in a hurry but not 
+    * What computer resources do you want 
+    *
+
+##############################################
+
+##############################################
+########## Python Use ##########  
+### Get iPython/Jupyter working run following in command line: 
+    * module load ncar_env
+    * module load python
+    * ncar_pylib
+##############################################
+
+### HDF5 Outputs from Gamera: 
+    * Seem to want to use the .gam.h5 file from the output
