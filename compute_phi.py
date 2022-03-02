@@ -51,11 +51,12 @@ if __name__ == '__main__':
     # The forward integration code would look like this:
     
     Phi_7timesteps = np.zeros((Nx, Ny, Nt, 2))
-    ftles = np.zeros((Nx, Ny, Nt))
+    ftlesforward = np.zeros((Nx, Ny, Nt))
+    ftlesbackward = np.zeros((Nx, Ny, Nt))
     for i in range(Nt-7):
         Phi_7timesteps[:,:,i,:] = composite_phis(Phi[:,:,i:(i+7+1),:],x_coords,y_coords)
     for i in range(Nt-7):
-        ftles[:,:,i] = compute_FTLES(Phi_7timesteps[:,:,i,:],x_coords,y_coords,dT)
+        ftlesforward[:,:,i] = compute_FTLES(Phi_7timesteps[:,:,i,:],x_coords,y_coords,dT)
     # We could combine the loops if we wanted ofc
     
     # The backwards integration code would look like
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     for i in range(Nt-7):
         Phi_reverse_7timesteps[:,:,i+7,:] = composite_phis(Phi_reverse[:,:,i:(i+7+1),:][:,:,::-1,:],x_coords,y_coords)
     for i in range(Nt-7):
-        ftles[:,:,i] = compute_FTLES(Phi_reverse_7timesteps[:,:,i,:],x_coords,y_coords,-dT)
+        ftlesbackward[:,:,i] = compute_FTLES(Phi_reverse_7timesteps[:,:,i,:],x_coords,y_coords,-dT)
 
 
 
