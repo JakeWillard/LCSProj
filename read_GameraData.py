@@ -4,8 +4,9 @@ import numpy as np
 
 scratch_path = '/glade/scratch/mlmoses/' 
 run_prmDct = {scratch_path+'test/Hall8.gam.h5': {'dt':0.5, 'tFin':60.0}, 
-        scratch_path+'McNally1/McNally1.gam.h5': {'dt':0.5, 'tFin':60.0},
-        scratch_path+'McNally_simple/McNally0.gam.h5': {'dt':0.01, 'tFin':5.0}}
+        scratch_path+'McNally1/McNally1.gam.h5': {'dt':0.5, 'tFin':60.0}, # McNally with the same rectangular grid and boundary conditions as Hall8 case
+        scratch_path+'McNally_simple/McNally0.gam.h5': {'dt':0.01, 'tFin':5.0}, # Stripped Down McNally from Prof Example with a square grid
+        scratch_path+'McNally0_dbGyrBnds/McNally0b.gam.h5': {'dt':0.1, 'tFin':10.0}} # Stripped Down McNally with same spatial and temporal grid as Double Gyre time varying file. 
 
 def extract_GameraData(filename): 
     """
@@ -58,9 +59,9 @@ def import_GameraData(filename):
 #    x_coords = X[0, 0:-1]
 #    y_coords = Y[0:-1, 0]
     x_coords = X[0:-1, 0]
-    y_coors = Y[0, 0:-1]
-    x_coords = x_coords + np.diff(X[0, :])/2.
-    y_coords = y_coords + np.diff(Y[:, 0])/2.
+    y_coords = Y[0, 0:-1]
+    x_coords = x_coords + np.diff(X[:, 0])/2.
+    y_coords = y_coords + np.diff(Y[0, :])/2.
 #    return dt, x_coords, y_coords, time_arr, X, Y, U
     return dt, x_coords, y_coords, time_arr, U
 
