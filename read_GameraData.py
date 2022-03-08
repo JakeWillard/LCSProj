@@ -3,7 +3,9 @@ import h5py
 import numpy as np
 
 scratch_path = '/glade/scratch/mlmoses/' 
-run_prmDct = {scratch_path+'test/Hall8.gam.h5': {'dt':0.5, 'tFin':60.0}}
+run_prmDct = {scratch_path+'test/Hall8.gam.h5': {'dt':0.5, 'tFin':60.0}, 
+        scratch_path+'McNally1/McNally1.gam.h5': {'dt':0.5, 'tFin':60.0},
+        scratch_path+'McNally_simple/McNally0.gam.h5': {'dt':0.01, 'tFin':5.0}}
 
 def extract_GameraData(filename): 
     """
