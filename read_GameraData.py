@@ -58,9 +58,9 @@ def import_GameraData(filename):
 #    x_coords = X[0, 0:-1]
 #    y_coords = Y[0:-1, 0]
     x_coords = X[0:-1, 0]
-    y_coors = Y[0, 0:-1]
-    x_coords = x_coords + np.diff(X[0, :])/2.
-    y_coords = y_coords + np.diff(Y[:, 0])/2.
+    y_coords = Y[0, 0:-1]
+    x_coords = x_coords + np.diff(X[:, 0])/2.
+    y_coords = y_coords + np.diff(Y[0, :])/2.
 #    return dt, x_coords, y_coords, time_arr, X, Y, U
     return dt, x_coords, y_coords, time_arr, U
 
