@@ -7,6 +7,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import matplotlib.pyplot as plt
 import os
 import time
+from tqdm import tqdm
 import h5py
 
 
@@ -40,27 +41,30 @@ def compute_phi(U, x_coords, y_coords, dt, nprocs):
     Nx, Ny, Nt, dummy = U.shape
     Phi = np.zeros(U.shape)
 
-    for t in range(0, Nt):
+    with tqdm(total=Nx*Ny*Nt) as pbar:
 
-        # initialize tracer
-        tr = Tracer(U[:,:,t,:], x_coords, y_coords, dt)
+        for t in range(0, Nt):
 
-        with ProcessPoolExecutor(max_workers=nprocs) as exe:
+            # initialize tracer
+            tr = Tracer(U[:,:,t,:], x_coords, y_coords, dt)
 
-            # create futures set
-            futures = set()
+            with ProcessPoolExecutor(max_workers=nprocs) as exe:
 
-            # submit tracing jobs and assemble set of futures
-            for i in range(0, Nx):
-                for j in range(0, Ny):
-                    x = x_coords[i]
-                    y = y_coords[j]
-                    futures.add(exe.submit(tr, x_coords[i], y_coords[j], i, j))
+                # create futures set
+                futures = set()
 
-            # obtain results from futures as the traces are completed
-            for fut in as_completed(futures):
-                x, y, i, j = fut.result()
-                Phi[int(i),int(j),t,:] = [x, y]
+                # submit tracing jobs and assemble set of futures
+                for i in range(0, Nx):
+                    for j in range(0, Ny):
+                        x = x_coords[i]
+                        y = y_coords[j]
+                        futures.add(exe.submit(tr, x_coords[i], y_coords[j], i, j))
+
+                # obtain results from futures as the traces are completed
+                for fut in as_completed(futures):
+                    x, y, i, j = fut.result()
+                    Phi[int(i),int(j),t,:] = [x, y]
+                    pbar.update(1)
 
 
     return Phi
