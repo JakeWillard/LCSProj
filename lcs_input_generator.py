@@ -27,7 +27,7 @@ import time
 
 #### Desired File Paramenters ####
 
-epsilon = 0 #how far r/l the oscilation moves
+epsilon = 0.25 #how far r/l the oscilation moves
 A = 0.1 #velocity amplitude
 period = 10 # period of the oscillation
 
@@ -36,14 +36,14 @@ x_max = 2.5
 y_min = 0.5
 y_max = 1.5
 
-dx = 0.1
-dy = 0.1
+dx = 0.01
+dy = 0.01
 
 run_time = 10
 dt = 0.1
 
 
-identifier = 'lcs_example'
+identifier = 'time_independent_test'
 
 ##################################
 
@@ -56,7 +56,7 @@ def init_file():
     elif epsilon==0:
         dep = 'stationary'
     
-    file_name = 'double_gyre_velocity_fields_' + str(identifier) + '_' + str(dep)
+    file_name = 'double_gyre_velocity_fields_' + str(identifier) + '_' + str(dep) + '.h5'
     
     f = h5.File(file_name, "w")
 
@@ -130,25 +130,25 @@ Vx, Vy = calc_velocity(x, y, t)
 
 
 
-fig, ax = plt.subplots()
-
-for i in range(len(T)):
-    
-    xs = x[0,:,i]
-    ys = y[:,0,i]
-    Vxs = Vx[:,:,i]
-    Vys = Vy[:,:,i]
-
-    Vxs = Vx[:,:,i]
-    Vys = Vy[:,:,i]
-    
-    ax.clear()
-    ax.set_title('Velocity Field')
-    
-    plt.quiver(xs, ys, Vxs, Vys)
-    plt.show()
-    
-    time.sleep(dt)
+# fig, ax = plt.subplots()
+# 
+# for i in range(len(T)):
+#     
+#     xs = x[0,:,i]
+#     ys = y[:,0,i]
+#     Vxs = Vx[:,:,i]
+#     Vys = Vy[:,:,i]
+# 
+#     Vxs = Vx[:,:,i]
+#     Vys = Vy[:,:,i]
+#     
+#     ax.clear()
+#     ax.set_title('Velocity Field')
+#     
+#     plt.quiver(xs, ys, Vxs, Vys)
+#     plt.show()
+#     
+#     time.sleep(dt)
     
 
 
