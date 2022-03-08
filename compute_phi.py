@@ -3,6 +3,8 @@ from scipy.integrate import solve_ivp
 from scipy.interpolate import RectBivariateSpline
 from multiprocessing import Pool
 import numpy as np
+import sys
+import read_GameraData as rdGam
 # import matplotlib.pyplot as plt
 
 
@@ -21,14 +23,17 @@ class Tracer:
 
 if __name__ == '__main__':
 
-    # placeholder assignments (these will be read in from file)
-    dt = 0.01
-    Nx = 20
-    Ny = 20
-    Nt = 1
-    x_coords = np.linspace(0, 1, Nx)
-    y_coords = np.linspace(0, 1, Ny)
-    U = np.zeros((Nx, Ny, Nt, 2))
+#    dt, x_coords, y_coords, time_arr, U = rdGam.import_GameraData(str(sys.argv[-1]))
+    dt, x_coords, y_coords, time_arr, U = rdGam.import_double_gyre(str(sys.argv[-1]))
+    Nx, Ny, Nt = (len(x_coords), len(y_coords), len(time_arr))
+#    # placeholder assignments (these will be read in from file)
+#    dt = 0.01
+#    Nx = 20
+#    Ny = 0
+#    Nt = 1
+#    x_coords = np.linspace(0, 1, Nx)
+#    y_coords = np.linspace(0, 1, Ny)
+#    U = np.zeros((Nx, Ny, Nt, 2))
 
     # initialize Phi
     Phi = np.zeros((Nx, Ny, Nt, 2))

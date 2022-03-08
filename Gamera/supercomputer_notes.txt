@@ -16,7 +16,7 @@
 ##############################################
 ########## Python Use ##########  
 ### Get iPython/Jupyter working run following in command line: 
-    * module load ncar_env
+    * module load ncarenv
     * module load python
     * ncar_pylib
 ##############################################
