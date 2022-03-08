@@ -74,7 +74,7 @@ def define_arrays():
 def match_arrays(X, Y, T):
     #Make arrays of the x, y, t values of the same shape as the velocity output
     x_2d = X
-    Y = np.flip(Y)
+    # Y = np.flip(Y)
     y_2d = Y
     
     for i in range(len(X)-1):
