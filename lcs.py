@@ -5,6 +5,7 @@ from scipy.integrate import solve_ivp
 from scipy.interpolate import RectBivariateSpline
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import matplotlib.pyplot as plt
+import os
 import time
 import h5py
 
@@ -270,8 +271,8 @@ def ftle(input_file, output_file, nc=1):
 
     # compute forward ftles
     Nx, Ny, Nt, dummy = Phi.shape
-    phic = np.zeros((Nx, Ny, Nt-2, 2))
-    ftles = np.zeros((Nx, Ny, Nt-2))
+    phic = np.zeros((Nx, Ny, Nt-nc, 2))
+    ftles = np.zeros((Nx, Ny, Nt-nc))
     for i in range(Nt-nc):
         phic[:,:,i,:] = composite_phis(Phi[:,:,i:(i+nc+1),:],x_coords,y_coords)
     for i in range(Nt-nc):
@@ -287,7 +288,7 @@ def ftle(input_file, output_file, nc=1):
     f.close()
 
 
-def ftle_plots(filename):
+def ftle_plots(filename, moviename, framerate=6):
 
     # read input
     f = h5py.File(filename, "r")
@@ -298,19 +299,22 @@ def ftle_plots(filename):
     dt = t_coords[1] - t_coords[0]
     f.close()
 
-    print(len(x_coords))
-    print(len(y_coords))
+    # make new directory for frames
+    os.mkdir("./frames")
 
-    # plot first time step
-    plt.pcolormesh(ftles[:,:,0])
-    plt.show()
+    # output frames
+    Nt = ftles.shape[2]
+    for i in range(Nt):
 
+        plt.pcolormesh(ftles[:,:,i])
+        plt.savefig("./frames/frame{0}.png" .format(i))
 
+    # call ffmpeg
+    cmd = "ffmpeg -f image2 -framerate {0} -i ./frames/frame%d.png -c:v libx264 -pix_fmt yuv420p -crf 23 {1}.mp4".format(framerate, moviename)
+    os.system(cmd)
 
-
-
-
-
+    # delete frames
+    os.system("rm -r ./frames/")
 
 
 
