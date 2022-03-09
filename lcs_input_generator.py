@@ -27,9 +27,9 @@ import time
 
 #### Desired File Paramenters ####
 
-epsilon = 0.25 #how far r/l the oscilation moves
-A = 0.1 #velocity amplitude
-period = 10 # period of the oscillation
+epsilon = 0.5 #how far r/l the oscilation moves
+A = 0.15 #velocity amplitude
+period = 5 # period of the oscillation
 
 x_min = 0.5
 x_max = 2.5
@@ -39,13 +39,14 @@ y_max = 1.5
 dx = 0.01
 dy = 0.01
 
-run_time = 10
-dt = 0.1
+run_time = 20
+dt = 0.05
 
 
-identifier = 'time_independent_test'
+identifier = 'lcs_example'
 
 ##################################
+
 
 
 
@@ -128,7 +129,15 @@ x, y, t = match_arrays(X, Y, T)
 
 Vx, Vy = calc_velocity(x, y, t)
 
-
+# Making border of zeros
+Vx[:,0,:] *= 0
+Vx[:,-1,:] *= 0
+Vx[0,:,:] *= 0
+Vx[-1,:,:] *= 0
+Vy[:,0,:] *= 0
+Vy[:,-1,:] *= 0
+Vy[0,:,:] *= 0
+Vy[-1,:,:] *= 0
 
 # fig, ax = plt.subplots()
 # 

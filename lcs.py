@@ -308,9 +308,13 @@ def ftle_plots(filename, moviename, framerate=6):
 
     # output frames
     Nt = ftles.shape[2]
+    ygrid,xgrid = np.meshgrid(y_coords,x_coords)
     for i in range(Nt):
 
-        plt.pcolormesh(ftles[:,:,i])
+        # plt.pcolormesh(ftles[:,:,i])
+        plt.clf()
+        plt.pcolormesh(xgrid,ygrid,ftles[:,:,i])
+        plt.colorbar()
         plt.savefig("./frames/frame{0}.png" .format(i))
 
     # call ffmpeg
