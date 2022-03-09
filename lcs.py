@@ -192,8 +192,10 @@ def compute_FTLEs(phi,rangex,rangey,deltaT):
     # This has a side effect of masking the boundary where the jacobians are all zero, which is nice.
     badcondition = ((svdmax < 1) | (svdmin > 1))
 
-    # The properly shaped masked array of maximum singular values, corresponding to the grid
-    svdmat = np.ma.masked_where(badcondition, svdmax).reshape(gridshape)
+    # No masking!!!!
+    ## The properly shaped masked array of maximum singular values, corresponding to the grid
+    # svdmat = np.ma.masked_where(badcondition, svdmax).reshape(gridshape)
+    svdmat = svdmax.reshape(gridshape)
 
     # The finite time lyapunov exponents
     ftles = np.log(svdmat)/np.abs(deltaT)
