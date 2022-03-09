@@ -41,6 +41,12 @@ def compute_phi(U, x_coords, y_coords, dt, nprocs):
     Nx, Ny, Nt, dummy = U.shape
     Phi = np.zeros(U.shape)
 
+    # set the velocities near the boundary to zero
+    U[:,0,:,:] *= 0
+    U[:,-1,:,:] *= 0
+    U[0,:,:,:] *= 0
+    U[-1,:,:,:] *= 0
+
     with tqdm(total=Nx*Ny*Nt) as pbar:
 
         for t in range(0, Nt):
@@ -218,11 +224,11 @@ def compute_FTLEs(phi,rangex,rangey,deltaT):
 # ===================================
 
 
-def extract_GameraData(filename): 
+def extract_GameraData(filename):
     """
-    Decscription: Extract Gamera data and reshape grid. 
+    Decscription: Extract Gamera data and reshape grid.
     NOTE: Does not output the input data to the compute_phi.py script. (see import_GameraData function)
-    Top Levels of f: 
+    Top Levels of f:
     * 'Step#<timestepNUM>': Subgroup containing data at timestep timestepNUN
         * 'D' : density (shape =n-1xm-1)
         * 'Vx' : Velocity X-Component (shape =n-1xm-1)
@@ -231,15 +237,15 @@ def extract_GameraData(filename):
     * 'Y': nxm Array containing the m Y values in the xy spatial grid (values only vary in the Y[:, i])
     * 'dV': Array of values
 
-    Output: 
+    Output:
         Vx_arr : n-1xm-1xk array containinng the Vx data for each of the k time steps at the center of each of the n X values and m Y values.
         Vy_arr : n-1xm-1xk array containinng the Vy data for each of the k time steps at the center of each of the n X values and m Y values.
     """
-    scratch_path = '/glade/scratch/mlmoses/' 
-    run_prmDct = {scratch_path+'test/Hall8.gam.h5': {'dt':0.5, 'tFin':60.0}, 
+    scratch_path = '/glade/scratch/mlmoses/'
+    run_prmDct = {scratch_path+'test/Hall8.gam.h5': {'dt':0.5, 'tFin':60.0},
             scratch_path+'McNally1/McNally1.gam.h5': {'dt':0.5, 'tFin':60.0}, # McNally with the same rectangular grid and boundary conditions as Hall8 case
             scratch_path+'McNally_simple/McNally0.gam.h5': {'dt':0.01, 'tFin':5.0}, # Stripped Down McNally from Prof Example with a square grid
-            scratch_path+'McNally0_dbGyrBnds/McNally0b.gam.h5': {'dt':0.1, 'tFin':10.0}, # Stripped Down McNally with same spatial and temporal grid as Double Gyre time varying file. 
+            scratch_path+'McNally0_dbGyrBnds/McNally0b.gam.h5': {'dt':0.1, 'tFin':10.0}, # Stripped Down McNally with same spatial and temporal grid as Double Gyre time varying file.
             scratch_path+'KH1/Sim.gam.h5': {'dt':0.5, 'tFin':60.0}}
     dt = run_prmDct[filename]['dt']
     time_arr = np.arange(0, run_prmDct[filename]['tFin']+dt, dt)
@@ -248,23 +254,23 @@ def extract_GameraData(filename):
     Y = f['Y'][()].T
     Vx_arr = np.zeros((len(np.unique(X))-1, len(np.unique(Y))-1, len(time_arr)))
     Vy_arr = np.zeros((len(np.unique(X))-1, len(np.unique(Y))-1, len(time_arr)))
-    for stepNum in np.arange(0, len(time_arr)): 
+    for stepNum in np.arange(0, len(time_arr)):
         print(stepNum)
         stepT = 'Step#%s' % (stepNum)
         print(stepT)
-        Vx_arr[:, :, stepNum] = f[stepT+'/Vx'][()].T # Velocity X-Component 
-        Vy_arr[:, :, stepNum] = f[stepT+'/Vy'][()].T # Velocity Y-Component 
+        Vx_arr[:, :, stepNum] = f[stepT+'/Vx'][()].T # Velocity X-Component
+        Vy_arr[:, :, stepNum] = f[stepT+'/Vy'][()].T # Velocity Y-Component
     return dt, time_arr, X, Y, Vx_arr, Vy_arr
 
 def import_GameraData(filename):
     """
     Import Gamera Data into the compute_phi.py script.
-    Note: This function calls the extract_GameraData to get the Gamera Output grids (reshaped). 
+    Note: This function calls the extract_GameraData to get the Gamera Output grids (reshaped).
     """
     dt, time_arr, X, Y, Vx_arr, Vy_arr = extract_GameraData(filename)
     U = np.zeros((len(np.unique(X))-1, len(np.unique(Y))-1, len(time_arr), 2))
     U[:, :, :, 0] = Vx_arr
-    U[:, :, :, 1] = Vy_arr 
+    U[:, :, :, 1] = Vy_arr
     x_coords = X[0:-1, 0]
     y_coords = Y[0, 0:-1]
     x_coords = x_coords + np.diff(X[:, 0])/2.
