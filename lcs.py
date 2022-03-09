@@ -277,10 +277,13 @@ def ftle(input_file, output_file, nc=1):
     Nx, Ny, Nt, dummy = Phi.shape
     phic = np.zeros((Nx, Ny, Nt-nc, 2))
     ftles = np.zeros((Nx, Ny, Nt-nc))
-    for i in range(Nt-nc):
-        phic[:,:,i,:] = composite_phis(Phi[:,:,i:(i+nc+1),:],x_coords,y_coords)
-    for i in range(Nt-nc):
-        ftles[:,:,i] = compute_FTLEs(phic[:,:,i,:],x_coords,y_coords,dt)
+    with tqdm(total=(Nt-nc)*2) as pbar:
+        for i in range(Nt-nc):
+            phic[:,:,i,:] = composite_phis(Phi[:,:,i:(i+nc+1),:],x_coords,y_coords)
+            pbar.update(1)
+        for i in range(Nt-nc):
+            ftles[:,:,i] = compute_FTLEs(phic[:,:,i,:],x_coords,y_coords,dt)
+            pbar.update(1)
 
     # write output
     # output phi, x_coords, y_coords, dt
@@ -292,7 +295,7 @@ def ftle(input_file, output_file, nc=1):
     f.close()
 
 
-def ftle_plots(filename, moviename, framerate=6):
+def movie(filename, moviename, framerate=6):
 
     # read input
     f = h5py.File(filename, "r")
@@ -309,13 +312,15 @@ def ftle_plots(filename, moviename, framerate=6):
     # output frames
     Nt = ftles.shape[2]
     ygrid,xgrid = np.meshgrid(y_coords,x_coords)
-    for i in range(Nt):
+    with tqdm(total=Nt) as pbar:
+        for i in range(Nt):
 
-        # plt.pcolormesh(ftles[:,:,i])
-        plt.clf()
-        plt.pcolormesh(xgrid,ygrid,ftles[:,:,i])
-        plt.colorbar()
-        plt.savefig("./frames/frame{0}.png" .format(i))
+            # plt.pcolormesh(ftles[:,:,i])
+            plt.clf()
+            plt.pcolormesh(xgrid,ygrid,ftles[:,:,i])
+            plt.colorbar()
+            plt.savefig("./frames/frame{0}.png" .format(i))
+            pbar.update(1)
 
     # call ffmpeg
     cmd = "ffmpeg -f image2 -framerate {0} -i ./frames/frame%d.png -c:v libx264 -pix_fmt yuv420p -crf 23 {1}.mp4".format(framerate, moviename)
@@ -325,12 +330,29 @@ def ftle_plots(filename, moviename, framerate=6):
     os.system("rm -r ./frames/")
 
 
+def whole_shebang(input_file, outputs_name, procs=1, nc=1, framerate=6):
+
+    phi_file = outputs_name + "_phi.h5"
+    ftle_file = outputs_name + "_ftle.h5"
+
+    # call lagrange
+    print("calculating phi...")
+    lagrange(input_file, phi_file, nprocs=procs)
+
+    # call ftle
+    print("calculating ftles...")
+    ftle(phi_file, ftle_file, nc=nc)
+
+    # make movie
+    print("making movie...")
+    movie(ftle_file, outputs_name, framerate=framerate)
+
 
 
 
 
 parser = argh.ArghParser()
-parser.add_commands([lagrange, ftle, ftle_plots])
+parser.add_commands([lagrange, ftle, movie, whole_shebang])
 if __name__ == '__main__':
 
     parser.dispatch()
